@@ -1,0 +1,9 @@
+include ':app', ':commlib', ':commbuildsrc'
+rootProject.name = 'GradleExercise'
+
+// gradle.properties 自定义属性 控制是否引入 test工程
+if (hasProperty('isLoadTest') ? isLoadTest.toBoolean() : false) {
+    include ':test'
+}
+
+println '初始化阶段开始执行...'

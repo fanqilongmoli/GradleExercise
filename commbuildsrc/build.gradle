@@ -1,0 +1,37 @@
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+//sourceSets {
+//    main {
+//        groovy{
+//            srcDir 'src/mian/groovy'
+//        }
+//
+//        resources {
+//            srcDir 'src/main/resources'
+//        }
+//    }
+//}
+
+repositories {
+    mavenCentral()
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            pom.groupId = 'com.fanqilong'
+            pom.artifactId = 'commbuildsrc'
+            pom.version = 1.0
+            repository(url: uri('../GradlePlugin'))
+        }
+    }
+}
+
+dependencies {
+    // gradle sdk
+    implementation gradleApi()
+    // groovy sdk
+    implementation localGroovy()
+    implementation 'com.android.tools.build:gradle:3.5.3'
+}

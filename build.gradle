@@ -1,0 +1,220 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+
+buildscript { //ScriptHandler scriptHandler ->
+    // 配置我们工程仓库地址
+    repositories { //RepositoryHandler repositoryHandler ->
+        google()
+        jcenter()
+        //关键地方--因为有一些引用是需要这个的
+        maven { url "https://jitpack.io" }
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven{ url uri('GradlePlugin') }
+//        repositoryHandler.mavenCentral()
+//        repositoryHandler.mavenLocal()
+//        // maven私服配置
+//        repositoryHandler.maven { MavenArtifactRepository mavenArtifactRepository ->
+//            mavenArtifactRepository.name 'personal'
+//            mavenArtifactRepository.url 'http://localhost:8081/nexus/repositories/'
+//            mavenArtifactRepository.credentials { PasswordCredentials passwordCredentials ->
+//                passwordCredentials.username = 'admin'
+//                passwordCredentials.password = '1233123'
+//
+//            }
+//        }
+//        // maven私服配置 简化
+//        maven {
+//            name 'personal'
+//            url 'http://localhost:8081/nexus/repositories/'
+//            credentials {
+//                username = 'admin'
+//                password = 'admin123'
+//            }
+//        }
+
+    }
+    // 配置我们工程插件依赖地址
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.5.3'
+        //依赖关系图生成插件
+        //classpath 'gradle.plugin.cz.malohlava:visteg:1.0.5'
+        classpath 'gradle.plugin.com.dorongold.plugins:task-tree:1.4'
+        classpath 'com.fanqilong:commbuildsrc:1.0'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+// 引入脚本
+apply from: this.file('common.gradle')
+
+/**
+ * 配置阶段开始前的回调
+ */
+this.beforeEvaluate {
+
+}
+
+/**
+ * 配置阶段完成后的回调
+ */
+this.afterEvaluate {
+    println "配置阶段执行完毕..."
+}
+
+/**
+ * gradle执行完成之后的回调
+ */
+this.gradle.buildFinished {
+    println "执行阶段执行完毕..."
+}
+
+this.gradle.beforeProject { //等价 beforeEvaluate
+
+}
+
+this.gradle.afterProject { // 等价 afterEvaluate
+
+}
+
+/**
+ * project相关的api详解
+ */
+
+
+//this.getProjects_()
+
+def getProjects_() {
+    println '----------'
+    println 'Root Project'
+    println '----------'
+    // this.getAllprojects()--> 获取到过程中所有的 project
+    this.getAllprojects().eachWithIndex { Project project, int index ->
+        if (index == 0) {
+            println "Root Project : ${project.name}"
+        } else {
+            println "+--- Project : ${project.name}"
+        }
+    }
+
+    // 获取工程中 所有的子project  （相对于当前的project）
+    this.getSubprojects().eachWithIndex { Project project, int index ->
+        println "-----+--- Project : ${project.name}"
+    }
+}
+
+def getRootProject_() {
+    // 获取root project
+    def name = getRootProject().name
+    println "the parent project name is : ${name}"
+}
+
+//getRootProject_()
+
+/**
+ * 找到子 project
+ * 可以在父工程中 找到子project 完成子工程的项目的配置
+ * 一般不会这样做
+ */
+//project('app') { Project project ->
+//    apply plugin: 'com.android.application'
+////    group 'com.faniqlong'
+////    version '1.0.0-relase'
+//    android {
+//
+//    }
+//    dependencies {
+//
+//    }
+//}
+//project("commlib") {
+//    apply plugin: 'com.android.library'
+////    group 'com.faniqlong'
+////    version '1.0.0-relase'
+//    dependencies {
+//
+//    }
+//    android {
+//
+//    }
+//}
+
+// Configures this project and each of its sub-projects
+// 配置当前project 和  subProject下的所有的子project
+//allprojects {
+//    group 'com.faniqlong_'
+//    version '1.0.0-relase'
+//}
+
+
+println project('commlib').group // com.faniqlong_
+
+//不包括当前节点工程 只包括当前节点下的subProject
+//subprojects { Project project ->
+//    // 判断子project 是否是一个lib 是lib就添加 maven推送功能
+//    if (project.plugins.hasPlugin('com.android.library')) {
+//        // 给所有的子工程 配置publishToMaven.gradle
+//        //apply from: '../publishToMaven.gradle'
+//    }
+//}
+// 为所有的子工程定义扩展属性
+//subprojects { Project project ->
+//    // 定义扩展属性
+//    ext {
+//        compileSdkVersion = 29
+//    }
+//}
+
+ext {
+    compileSdkVersion = 29
+}
+
+//=================gradle中的文件操作=====================//
+// 获取根目录文件地址
+//println "getRootDir-->" + getRootDir().absolutePath // D:\dev\android\GradleExercise
+// 获取build 文件地址
+//println "getBuildDir-->" + getBuildDir().absolutePath // >D:\dev\android\GradleExercise\build
+// 获取当前project 地址
+//println "getProjectDir-->" + getProjectDir().absolutePath // D:\dev\android\GradleExercise
+//====== 文件定位=========
+//println getContent('common.gradle')
+//
+//def getContent(String path) {
+//    try {
+//        def file = file(path)
+//        // 相对于当前project工程开始查找
+//        return file.text
+//    } catch (GradleException e) {
+//        println 'file not find...'
+//    }
+//    return null
+//}
+
+
+//引入task依赖关系图生成插件
+//apply plugin: 'cz.malohlava.visteg'
+apply plugin: "com.dorongold.task-tree"
+//visteg {
+//    enabled = true
+////    colouredNodes = true
+////    colouredEdges = true
+////    destination = 'build/reports/visteg.dot'
+////    exporter = 'dot'
+////    colorscheme = 'spectral11'
+////    nodeShape = 'box'
+////    startNodeShape = 'hexagon'
+////    endNodeShape = 'doubleoctagon'
+////}
