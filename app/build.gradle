@@ -1,4 +1,8 @@
+import com.android.build.gradle.internal.api.ApkVariantOutputImpl
+import com.android.build.gradle.internal.api.ApplicationVariantImpl
+import com.android.build.gradle.tasks.PackageAndroidArtifact
 import groovy.xml.MarkupBuilder
+
 apply plugin: 'com.android.application'
 apply plugin: 'commbuildsrc'
 
@@ -28,7 +32,7 @@ android {
 
     sourceSets {
         main {
-            res.srcDirs = ['src/main/res','src/main/res-ad','src/main/res-player'] // 设置资源文件文件夹
+            res.srcDirs = ['src/main/res', 'src/main/res-ad', 'src/main/res-player'] // 设置资源文件文件夹
         }
     }
 }
@@ -301,8 +305,28 @@ ext {
 
 //==============插件传递参数=================//
 commBuildSrc {
-    versionCode rootProject.ext.android.versionCode
-    versionName rootProject.ext.android.versionName
-    vsersionInfo '---vsersionInfo---'
-    fileName 'releases.xml'
+    versionCode = rootProject.ext.android.versionCode
+    versionName = rootProject.ext.android.versionName
+    versionInfo = '---vsersionInfo---'
+    fileName = 'releases.xml'
+}
+
+// gradle 变体
+this.afterEvaluate {
+    this.android.applicationVariants.all { ApplicationVariantImpl variant ->
+        println variant.class
+        def name = variant.name
+        def baseName = variant.baseName
+        def apkName = "app-${variant.baseName}-${variant.versionName}.apk"
+        variant.outputs.all {
+            // 修改apk输出的位置 // API 'variant.getPackageApplication()' is obsolete and has been replaced with 'variant.getPackageApplicationProvider()
+            variant.getPackageApplicationProvider().get().outputDirectory = new File(project.rootDir.absolutePath + "/build/outputs/apk/release")
+            // 修改apk输出的位置 3.2之前的方法
+            // variant.getPackageApplication().outputDirectory = new File(project.rootDir.absolutePath + "/build/outputs/apk/release")
+            // 修改变体输出为apk文件名
+            outputFileName = "app-${variant.baseName}_${variant.versionName}_${variant.versionCode}.apk"
+        }
+
+//        println "the name is ${name};the baseName is ${baseName}"
+    }
 }
